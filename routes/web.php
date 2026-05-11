@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ExpenseController;
+use App\Http\Controllers\Admin\SparepartController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Kasir\DashboardController as KasirDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -36,12 +38,8 @@ Route::middleware('auth')->group(function () {
         ->name('admin.')
         ->group(function () {
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-
-            // === Placeholder untuk route Admin berikutnya ===
-            // Route::resource('spareparts', SparepartController::class);
-            // Route::resource('expenses', ExpenseController::class);
-            // Route::get('reports', ReportController::class)->name('reports');
-            // Route::get('predictions', PredictionController::class)->name('predictions');
+            Route::resource('spareparts', SparepartController::class)->except(['show']);
+            Route::resource('expenses', ExpenseController::class)->except(['show']);
         });
 
     /*
