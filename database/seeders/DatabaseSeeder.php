@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
+            // PredictionSeeder::class, // Jalankan manual: php artisan db:seed --class=PredictionSeeder
         ]);
     }
 }

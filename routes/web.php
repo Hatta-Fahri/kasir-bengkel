@@ -22,21 +22,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Authenticated Routes — Wajib login
-|--------------------------------------------------------------------------
-*/
 Route::middleware('auth')->group(function () {
 
-    // Logout (bisa dari role mana saja, selama sudah login)
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
-    /*
-    |----------------------------------------------------------------------
-    | Admin Routes — Role: admin
-    |----------------------------------------------------------------------
-    */
     Route::middleware('role:admin')
         ->prefix('admin')
         ->name('admin.')
@@ -48,11 +37,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/predictions', [PredictionController::class, 'index'])->name('predictions.index');
         });
 
-    /*
-    |----------------------------------------------------------------------
-    | Kasir Routes — Role: kasir
-    |----------------------------------------------------------------------
-    */
     Route::middleware('role:kasir')
         ->prefix('kasir')
         ->name('kasir.')
