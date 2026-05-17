@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\SparepartController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Kasir\DashboardController as KasirDashboardController;
+use App\Http\Controllers\Kasir\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -53,8 +54,9 @@ Route::middleware('auth')->group(function () {
         ->group(function () {
             Route::get('/dashboard', [KasirDashboardController::class, 'index'])->name('dashboard');
 
-            // === Placeholder untuk route Kasir berikutnya ===
-            // Route::get('transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
-            // Route::post('transactions', [TransactionController::class, 'store'])->name('transactions.store');
+            // Transaksi (POS)
+            Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
+            Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+            Route::get('/transactions/{transaction}/receipt', [TransactionController::class, 'receipt'])->name('transactions.receipt');
         });
 });
