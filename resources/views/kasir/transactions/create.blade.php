@@ -37,6 +37,7 @@
                             <div class="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-slate-100 bg-white peer-checked:border-slate-900 peer-checked:bg-slate-900 peer-checked:text-white text-slate-500 transition-all duration-200">
                                 <svg class="w-7 h-7 peer-checked:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
                                 <span class="text-sm font-semibold">Penjualan</span>
+                                <span class="text-[11px] opacity-60 font-medium -mt-1 text-center">Sparepart saja</span>
                             </div>
                         </label>
                         <label class="cursor-pointer group">
@@ -44,6 +45,7 @@
                             <div class="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-slate-100 bg-white peer-checked:border-slate-900 peer-checked:bg-slate-900 peer-checked:text-white text-slate-500 transition-all duration-200">
                                 <svg class="w-7 h-7 transition-colors" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.83m-3.703 3.75a3.375 3.375 0 11-4.773-4.773L9.75 7.5M11.42 15.17l-3.95-3.95m5.903 5.903L15 15.75M8.25 15.75l-4.5 4.5M3 16.5l3-3m0 0l-3-3m3 3H9" /></svg>
                                 <span class="text-sm font-semibold">Servis</span>
+                                <span class="text-[11px] opacity-60 font-medium -mt-1 text-center">Jasa + sparepart</span>
                             </div>
                         </label>
                     </div>
@@ -222,6 +224,26 @@
                                         </div>
                                     </li>
                                 </template>
+
+                                {{-- Baris Ongkos Jasa (hanya servis & ongkos > 0) --}}
+                                <li x-show="tipe === 'servis' && ongkosJasa > 0" class="flex py-4 border-t border-slate-100">
+                                    <div class="ml-4 flex flex-1 items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                                                <svg class="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.83m-3.703 3.75a3.375 3.375 0 11-4.773-4.773L9.75 7.5M11.42 15.17l-3.95-3.95m5.903 5.903L15 15.75M8.25 15.75l-4.5 4.5M3 16.5l3-3m0 0l-3-3m3 3H9" /></svg>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-slate-900">Ongkos Jasa</p>
+                                                <p class="text-xs text-slate-500 font-medium mt-0.5" x-text="platNomor.toUpperCase() + ' · ' + jenisMobil"></p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm font-bold text-slate-900" x-text="'Rp ' + formatRupiah(ongkosJasa)"></p>
+                                            <button type="button" @click="isCartOpen = false; isSetupComplete = false"
+                                                class="text-xs text-blue-500 hover:text-blue-700 font-semibold mt-0.5">Ubah</button>
+                                        </div>
+                                    </div>
+                                </li>
                             </ul>
 
                             {{-- Catatan (Muncul jika ada item di keranjang) --}}
