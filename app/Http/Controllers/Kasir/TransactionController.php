@@ -8,6 +8,7 @@ use App\Models\Sparepart;
 use App\Models\Transaction;
 use App\Services\TransactionService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -18,8 +19,34 @@ class TransactionController extends Controller
     ) {}
 
     /**
+     * Riwayat transaksi kasir yang sedang login.
+     */
+    public function index(Request $request): View
+    {
+        $query = Transaction::with('kasir')
+            ->where('kasir_id', Auth::id())
+            ->orderByDesc('created_at');
+
+        // Filter tanggal
+        if ($request->filled('tanggal')) {
+            $query->whereDate('created_at', $request->tanggal);
+        }
+
+        // Filter tipe
+        if ($request->filled('tipe') && in_array($request->tipe, ['penjualan', 'servis'])) {
+            $query->where('tipe_transaksi', $request->tipe);
+        }
+
+        $transactions = $query->paginate(15)->withQueryString();
+
+        // Summary filter aktif
+        $totalFilteredPendapatan = $query->sum('total_bayar');
+
+        return view('kasir.transactions.index', compact('transactions', 'totalFilteredPendapatan'));
+    }
+
+    /**
      * Tampilkan halaman POS kasir.
-     * Sparepart yang stok > 0 dikirim sebagai JSON untuk diolah Alpine.js.
      */
     public function create(): View
     {
@@ -32,7 +59,7 @@ class TransactionController extends Controller
                 'nama'       => $sp->nama_part,
                 'kode'       => $sp->kode_part,
                 'satuan'     => $sp->satuan,
-                'harga_jual' => (float) $sp->harga_jual, // accessor HPP +10%
+                'harga_jual' => (float) $sp->harga_jual,
                 'stok'       => $sp->stok,
             ]);
 
@@ -42,7 +69,7 @@ class TransactionController extends Controller
     }
 
     /**
-     * Proses penyimpanan transaksi via TransactionService.
+     * Proses penyimpanan transaksi.
      */
     public function store(StoreTransactionRequest $request): RedirectResponse
     {
@@ -57,25 +84,18 @@ class TransactionController extends Controller
                 ->with('success', "Transaksi {$transaction->no_struk} berhasil disimpan.");
 
         } catch (\RuntimeException $e) {
-            // Stok tidak cukup (race condition yang terdeteksi di service)
-            return back()
-                ->withInput()
-                ->with('error', $e->getMessage());
-        } catch (\Throwable $e) {
-            return back()
-                ->withInput()
-                ->with('error', 'Terjadi kesalahan sistem. Transaksi dibatalkan.');
+            return back()->withInput()->with('error', $e->getMessage());
+        } catch (\Throwable) {
+            return back()->withInput()->with('error', 'Terjadi kesalahan sistem. Transaksi dibatalkan.');
         }
     }
 
     /**
-     * Tampilkan halaman cetak struk.
+     * Cetak struk transaksi.
      */
     public function receipt(Transaction $transaction): View
     {
-        // Guard: kasir hanya bisa lihat struk transaksi miliknya sendiri
         abort_if($transaction->kasir_id !== Auth::id(), 403);
-
         $transaction->load(['details.sparepart', 'kasir']);
 
         return view('kasir.transactions.receipt', compact('transaction'));

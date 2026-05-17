@@ -67,17 +67,15 @@
                 <svg class="w-4 h-4 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M1 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4Zm12 4a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM4 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm13-1a1 1 0 1 0-2 0 1 1 0 0 0 2 0Z" clip-rule="evenodd"/></svg>
                 Pengeluaran
             </a>
-            <a href="#" class="sidebar-link">
+            <a href="{{ route('admin.reports.index') }}" class="sidebar-link {{ request()->routeIs('admin.reports.*') ? 'sidebar-link-active' : '' }}">
                 <svg class="w-4 h-4 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h9A1.5 1.5 0 0 1 14 3.5v11.75A2.75 2.75 0 0 0 16.75 18h-12A2.75 2.75 0 0 1 2 15.25V3.5Zm3.75 7a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Zm0 3a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5ZM5 5.75A.75.75 0 0 1 5.75 5h4.5a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 8.25v-2.5Z" clip-rule="evenodd"/></svg>
                 Laporan Keuangan
-                <span class="ml-auto badge">Soon</span>
             </a>
 
             <p class="px-3 pt-4 pb-1.5 text-xs font-semibold text-brand-500 uppercase tracking-widest">Analitik</p>
-            <a href="#" class="sidebar-link">
+            <a href="{{ route('admin.predictions.index') }}" class="sidebar-link {{ request()->routeIs('admin.predictions.*') ? 'sidebar-link-active' : '' }}">
                 <svg class="w-4 h-4 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M1 2.75A.75.75 0 0 1 1.75 2h16.5a.75.75 0 0 1 0 1.5H18v8.75A2.75 2.75 0 0 1 15.25 15h-1.072l.798 3.06a.75.75 0 0 1-1.452.38L13.41 18H6.59l-.114.44a.75.75 0 0 1-1.452-.38L5.823 15H4.75A2.75 2.75 0 0 1 2 12.25V3.5h-.25A.75.75 0 0 1 1 2.75Z" clip-rule="evenodd"/></svg>
                 Prediksi Sparepart
-                <span class="ml-auto badge">Soon</span>
             </a>
 
         @else
@@ -89,21 +87,19 @@
             </a>
 
             <p class="px-3 pt-4 pb-1.5 text-xs font-semibold text-brand-500 uppercase tracking-widest">Transaksi</p>
-            <a href="{{ route('kasir.transactions.create') }}" class="sidebar-link {{ request()->routeIs('kasir.transactions.*') ? 'sidebar-link-active' : '' }}">
+            <a href="{{ route('kasir.transactions.create') }}" class="sidebar-link {{ request()->routeIs('kasir.transactions.create') ? 'sidebar-link-active' : '' }}">
                 <svg class="w-4 h-4 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M2.879 7.121A3 3 0 0 0 7.5 6.66a2.997 2.997 0 0 0 2.5 1.34 2.997 2.997 0 0 0 2.5-1.34 3 3 0 1 0 4.621-3.78l-1.932-1.932A1.5 1.5 0 0 0 14.128 2H5.872a1.5 1.5 0 0 0-1.06.44L2.879 4.372A3 3 0 0 0 2.879 7.121Z"/><path fill-rule="evenodd" d="M2 10.5a.5.5 0 0 1 .5-.5h15a.5.5 0 0 1 .5.5V17a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-6.5Zm3.75 2.25a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z" clip-rule="evenodd"/></svg>
                 Transaksi Baru
             </a>
-            <a href="#" class="sidebar-link">
+            <a href="{{ route('kasir.transactions.index') }}" class="sidebar-link {{ request()->routeIs('kasir.transactions.index') ? 'sidebar-link-active' : '' }}">
                 <svg class="w-4 h-4 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h9A1.5 1.5 0 0 1 14 3.5v11.75A2.75 2.75 0 0 0 16.75 18h-12A2.75 2.75 0 0 1 2 15.25V3.5Zm3.75 7a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Zm0 3a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5ZM5 5.75A.75.75 0 0 1 5.75 5h4.5a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 8.25v-2.5Z" clip-rule="evenodd"/></svg>
                 Riwayat Transaksi
-                <span class="ml-auto badge">Soon</span>
             </a>
 
             <p class="px-3 pt-4 pb-1.5 text-xs font-semibold text-brand-500 uppercase tracking-widest">Informasi</p>
-            <a href="#" class="sidebar-link">
+            <a href="{{ route('kasir.spareparts.index') }}" class="sidebar-link {{ request()->routeIs('kasir.spareparts.*') ? 'sidebar-link-active' : '' }}">
                 <svg class="w-4 h-4 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.362 1.093a.75.75 0 0 0-.724 0L2.523 5.018 10 9.143l7.477-4.125-7.115-3.925ZM18 6.443l-7.25 3.998v8.649l6.498-3.582A.75.75 0 0 0 18 14.9V6.443ZM9.25 19.09V10.44L2 6.443V14.9a.75.75 0 0 0 .752.608L9.25 19.09Z"/></svg>
                 Cek Stok
-                <span class="ml-auto badge">Soon</span>
             </a>
         @endif
     </nav>
@@ -148,6 +144,18 @@
                 <h2 class="text-gray-800 font-semibold text-base">@yield('page_title', 'Dashboard')</h2>
             </div>
             <div class="flex items-center gap-3">
+                {{-- Notifikasi stok menipis (Admin only) --}}
+                @if(auth()->user()->isAdmin())
+                    @php $stokMenipisCount = \App\Models\Sparepart::stokMenipis()->count(); @endphp
+                    @if($stokMenipisCount > 0)
+                    <a href="{{ route('admin.spareparts.index', ['stok_menipis' => 1]) }}"
+                       title="{{ $stokMenipisCount }} sparepart stok menipis"
+                       class="relative flex items-center justify-center w-9 h-9 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-600 transition-colors">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>
+                        <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold text-white bg-amber-500 rounded-full px-1">{{ $stokMenipisCount }}</span>
+                    </a>
+                    @endif
+                @endif
                 <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
                     {{ auth()->user()->isAdmin() ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700' }}">
                     {{ ucfirst(auth()->user()->role) }}
