@@ -15,7 +15,7 @@ class ReportService
      * Bangun query range dari filter periode.
      * Mengembalikan [Carbon $start, Carbon $end, string $labelFormat, string $groupFormat]
      */
-    private function buildRange(string $periode, ?string $bulan, ?string $minggu, ?string $tanggal): array
+    private function buildRange(string $periode, ?string $bulan, ?string $minggu, ?string $tanggal, ?string $tahun): array
     {
         return match ($periode) {
             'harian' => [
@@ -30,6 +30,12 @@ class ReportService
                 'd M',       // label per hari
                 '%d %b',     // mysql group
             ],
+            'tahunan' => [
+                Carbon::parse(($tahun ?? now()->format('Y')) . '-01-01')->startOfYear()->startOfDay(),
+                Carbon::parse(($tahun ?? now()->format('Y')) . '-01-01')->endOfYear()->endOfDay(),
+                'M Y',       // label per bulan
+                '%b %Y',     // mysql group
+            ],
             default => [ // bulanan
                 Carbon::parse(($bulan ?? now()->format('Y-m')) . '-01')->startOfMonth()->startOfDay(),
                 Carbon::parse(($bulan ?? now()->format('Y-m')) . '-01')->endOfMonth()->endOfDay(),
@@ -41,10 +47,11 @@ class ReportService
 
     /**
      * Ambil semua data laporan berdasarkan filter periode.
+     * $export = true akan mengambil seluruh transaksi tanpa paginasi (untuk cetak laporan).
      */
-    public function getLaporan(string $periode, ?string $bulan, ?string $minggu, ?string $tanggal): array
+    public function getLaporan(string $periode, ?string $bulan, ?string $minggu, ?string $tanggal, ?string $tahun = null, bool $export = false): array
     {
-        [$start, $end, $labelFmt, $mysqlFmt] = $this->buildRange($periode, $bulan, $minggu, $tanggal);
+        [$start, $end, $labelFmt, $mysqlFmt] = $this->buildRange($periode, $bulan, $minggu, $tanggal, $tahun);
 
         // ── Pendapatan per periode ──
         $pendapatanRaw = Transaction::select(
@@ -84,12 +91,14 @@ class ReportService
         $totalTransaksi   = Transaction::where('status', 'selesai')->whereBetween('created_at', [$start, $end])->count();
 
         // ── Tabel transaksi ──
-        $transaksi = Transaction::with('kasir')
+        $transaksiQuery = Transaction::with('kasir')
             ->where('status', 'selesai')
             ->whereBetween('created_at', [$start, $end])
-            ->orderByDesc('created_at')
-            ->paginate(15)
-            ->withQueryString();
+            ->orderByDesc('created_at');
+
+        $transaksi = $export
+            ? $transaksiQuery->get()
+            : $transaksiQuery->paginate(15)->withQueryString();
 
         // ── Pengeluaran list ──
         $pengeluaran = Expense::with('admin')
@@ -130,6 +139,12 @@ class ReportService
         if ($periode === 'harian') {
             for ($h = 0; $h <= 23; $h++) {
                 $labels[] = str_pad($h, 2, '0', STR_PAD_LEFT) . ':00';
+            }
+        } elseif ($periode === 'tahunan') {
+            $cursor = $start->copy();
+            while ($cursor->lte($end)) {
+                $labels[] = $cursor->format('M Y');
+                $cursor->addMonth();
             }
         } else {
             $cursor = $start->copy();

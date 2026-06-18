@@ -34,7 +34,9 @@ Route::middleware('auth')->group(function () {
             Route::resource('spareparts', SparepartController::class)->except(['show']);
             Route::resource('expenses', ExpenseController::class)->except(['show']);
             Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+            Route::get('/reports/print', [ReportController::class, 'print'])->name('reports.print');
             Route::get('/predictions', [PredictionController::class, 'index'])->name('predictions.index');
+            Route::post('/predictions/generate', [PredictionController::class, 'generate'])->name('predictions.generate');
         });
 
     Route::middleware('role:kasir')

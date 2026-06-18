@@ -18,13 +18,21 @@
                 <h1 class="text-white text-xl font-bold">Prediksi Kebutuhan Sparepart</h1>
                 <p class="text-purple-300 text-sm mt-1">Estimasi kebutuhan berbasis data historis penjualan per bulan</p>
             </div>
-            <div class="flex flex-col items-end gap-1 text-xs text-purple-300">
-                @if($diGeneratePada)
-                    <span>📅 Di-generate: <span class="text-white font-medium">{{ $diGeneratePada->locale('id')->translatedFormat('d F Y H:i') }}</span></span>
-                    <span>🔖 Versi model: <span class="text-purple-200 font-mono font-medium">{{ $versiModel }}</span></span>
-                @else
-                    <span class="text-purple-400 italic">Belum ada data prediksi</span>
-                @endif
+            <div class="flex flex-col items-end gap-2">
+                <form method="POST" action="{{ route('admin.predictions.generate') }}">
+                    @csrf
+                    <button type="submit" class="px-4 py-2 bg-purple-500 hover:bg-purple-400 text-white text-xs font-semibold rounded-lg transition-colors whitespace-nowrap">
+                        Generate Prediksi
+                    </button>
+                </form>
+                <div class="flex flex-col items-end gap-1 text-xs text-purple-300">
+                    @if($diGeneratePada)
+                        <span>📅 Di-generate: <span class="text-white font-medium">{{ $diGeneratePada->locale('id')->translatedFormat('d F Y H:i') }}</span></span>
+                        <span>🔖 Versi model: <span class="text-purple-200 font-mono font-medium">{{ $versiModel }}</span></span>
+                    @else
+                        <span class="text-purple-400 italic">Belum ada data prediksi</span>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -130,7 +138,8 @@
                     <tr class="bg-gray-50 border-b border-gray-100">
                         <th class="text-left px-4 py-3 font-semibold text-gray-600">Sparepart</th>
                         <th class="text-right px-4 py-3 font-semibold text-gray-600 whitespace-nowrap">Stok Sekarang</th>
-                        <th class="text-right px-4 py-3 font-semibold text-gray-600 whitespace-nowrap">Estimasi Butuh</th>
+                        <th class="text-right px-4 py-3 font-semibold text-gray-600 whitespace-nowrap">Estimasi Bulan Ini</th>
+                        <th class="text-right px-4 py-3 font-semibold text-gray-600 whitespace-nowrap">Total Kumulatif*</th>
                         <th class="text-center px-4 py-3 font-semibold text-gray-600 whitespace-nowrap">Confidence Interval</th>
                         <th class="text-right px-4 py-3 font-semibold text-gray-600 whitespace-nowrap">Rekomendasi Beli</th>
                         <th class="text-center px-4 py-3 font-semibold text-gray-600">Status</th>
@@ -151,6 +160,10 @@
                         </td>
                         <td class="px-4 py-3.5 text-right">
                             <span class="font-bold text-purple-700">{{ number_format($p->estimasi_kebutuhan, 1) }}</span>
+                            <span class="text-xs text-gray-400 ml-0.5">{{ $p->sparepart->satuan ?? '' }}</span>
+                        </td>
+                        <td class="px-4 py-3.5 text-right">
+                            <span class="font-bold {{ $p->perlu_restok ? 'text-red-600' : 'text-gray-800' }}">{{ number_format($p->kebutuhan_kumulatif, 1) }}</span>
                             <span class="text-xs text-gray-400 ml-0.5">{{ $p->sparepart->satuan ?? '' }}</span>
                         </td>
                         <td class="px-4 py-3.5 text-center">
@@ -192,10 +205,10 @@
     <div class="bg-purple-50 border border-purple-100 rounded-2xl p-4 text-xs text-purple-700 space-y-1">
         <p class="font-semibold text-purple-800">📌 Cara membaca prediksi ini:</p>
         <ul class="list-disc list-inside space-y-1 text-purple-600">
-            <li><strong>Estimasi Butuh</strong> — Prediksi unit yang akan dibutuhkan pada bulan tersebut berdasarkan tren historis penjualan (model Facebook Prophet).</li>
-            <li><strong>Confidence Interval</strong> — Rentang kemungkinan (batas bawah – batas atas). Semakin sempit, semakin akurat prediksi.</li>
-            <li><strong>Rekomendasi Beli</strong> — Jumlah minimum yang perlu dibeli agar stok mencukupi estimasi kebutuhan.</li>
-            <li><strong>Status Aman</strong> — Stok saat ini sudah melebihi estimasi kebutuhan.</li>
+            <li><strong>Estimasi Bulan Ini</strong> — Prediksi unit yang dibutuhkan khusus pada bulan {{ $bulan->locale('id')->translatedFormat('F Y') }} saja, berdasarkan model Facebook Prophet.</li>
+            <li><strong>Total Kumulatif*</strong> — Penjumlahan estimasi dari bulan sekarang ({{ now()->locale('id')->translatedFormat('F Y') }}) sampai bulan yang dipilih, dengan asumsi <strong>tidak ada pembelian/restock</strong> di antaranya. Stok yang ada akan terpakai duluan di bulan-bulan sebelumnya, jadi inilah angka yang sebenarnya menentukan cukup/tidaknya stok — bukan estimasi satu bulan saja.</li>
+            <li><strong>Confidence Interval</strong> — Rentang kemungkinan (batas bawah – batas atas) untuk Estimasi Bulan Ini. Semakin sempit, semakin akurat prediksi.</li>
+            <li><strong>Rekomendasi Beli & Status</strong> — Dihitung dari <strong>Total Kumulatif</strong> dibandingkan stok saat ini, bukan dari Estimasi Bulan Ini saja.</li>
         </ul>
     </div>
 
@@ -204,38 +217,39 @@
     {{-- ============================================================ --}}
     {{-- EMPTY STATE                                                    --}}
     {{-- ============================================================ --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center">
-        <div class="w-16 h-16 rounded-2xl bg-purple-100 flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-purple-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M1 2.75A.75.75 0 0 1 1.75 2h16.5a.75.75 0 0 1 0 1.5H18v8.75A2.75 2.75 0 0 1 15.25 15h-1.072l.798 3.06a.75.75 0 0 1-1.452.38L13.41 18H6.59l-.114.44a.75.75 0 0 1-1.452-.38L5.823 15H4.75A2.75 2.75 0 0 1 2 12.25V3.5h-.25A.75.75 0 0 1 1 2.75Z" clip-rule="evenodd"/></svg>
+    @if($adaPrediksiSamaSekali)
+        {{-- Sudah ada data prediksi, tapi tidak ada yang match filter saat ini --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-amber-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M3.792 2.938A49.069 49.069 0 0 1 12 2.25c2.797 0 5.54.236 8.209.688a1.857 1.857 0 0 1 1.541 1.836v1.044a3 3 0 0 1-.879 2.121l-6.182 6.182a1.5 1.5 0 0 0-.439 1.061v2.927a3 3 0 0 1-1.658 2.684l-1.757.878A.75.75 0 0 1 9.75 21v-6.818a1.5 1.5 0 0 0-.44-1.06L3.13 6.939a3 3 0 0 1-.879-2.121V3.774c0-.897.64-1.683 1.541-1.836Z" clip-rule="evenodd"/></svg>
+            </div>
+            <h3 class="text-gray-700 font-bold text-lg mb-2">Tidak Ada Prediksi untuk Filter Ini</h3>
+            <p class="text-gray-400 text-sm max-w-sm mx-auto mb-6">
+                @if(request('sparepart_id'))
+                    Sparepart yang dipilih belum punya hasil prediksi pada {{ $bulan->locale('id')->translatedFormat('F Y') }}
+                    — biasanya karena histori penjualannya masih kurang dari 3 bulan, atau belum pernah terjual sama sekali.
+                @else
+                    Belum ada hasil prediksi untuk {{ $bulan->locale('id')->translatedFormat('F Y') }}. Coba pilih bulan lain,
+                    atau generate ulang dengan rentang bulan yang lebih panjang.
+                @endif
+            </p>
+            <a href="{{ route('admin.predictions.index') }}" class="inline-flex px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-xl transition-colors">
+                Reset Filter
+            </a>
         </div>
-        <h3 class="text-gray-700 font-bold text-lg mb-2">Belum Ada Data Prediksi</h3>
-        <p class="text-gray-400 text-sm max-w-sm mx-auto mb-6">
-            Data prediksi dihasilkan oleh model Facebook Prophet yang dijalankan secara terpisah. Setelah model selesai, import hasilnya menggunakan perintah di bawah.
-        </p>
-        <div class="bg-gray-900 rounded-xl p-4 text-left max-w-lg mx-auto">
-            <p class="text-gray-400 text-xs font-mono mb-2"># Import hasil output Prophet (format JSON):</p>
-            <p class="text-emerald-400 text-sm font-mono">php artisan prediction:import /path/to/predictions.json</p>
-            <p class="text-gray-500 text-xs font-mono mt-2"># Preview tanpa simpan:</p>
-            <p class="text-amber-400 text-sm font-mono">php artisan prediction:import predictions.json --dry-run</p>
-            <p class="text-gray-500 text-xs font-mono mt-2"># Dengan versi model tertentu:</p>
-            <p class="text-blue-400 text-sm font-mono">php artisan prediction:import predictions.json --versi=v2.1</p>
+    @else
+        {{-- Belum pernah generate prediksi sama sekali --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-purple-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M1 2.75A.75.75 0 0 1 1.75 2h16.5a.75.75 0 0 1 0 1.5H18v8.75A2.75 2.75 0 0 1 15.25 15h-1.072l.798 3.06a.75.75 0 0 1-1.452.38L13.41 18H6.59l-.114.44a.75.75 0 0 1-1.452-.38L5.823 15H4.75A2.75 2.75 0 0 1 2 12.25V3.5h-.25A.75.75 0 0 1 1 2.75Z" clip-rule="evenodd"/></svg>
+            </div>
+            <h3 class="text-gray-700 font-bold text-lg mb-2">Belum Ada Data Prediksi</h3>
+            <p class="text-gray-400 text-sm max-w-sm mx-auto">
+                Klik tombol <strong>Generate Prediksi</strong> di pojok kanan atas untuk memanggil prediction-service
+                (FastAPI + Prophet) berdasarkan histori penjualan yang sudah tercatat.
+            </p>
         </div>
-
-        {{-- Format JSON --}}
-        <div class="bg-gray-900 rounded-xl p-4 text-left max-w-lg mx-auto mt-3">
-            <p class="text-gray-400 text-xs font-mono mb-2"># Format JSON yang diterima:</p>
-            <pre class="text-xs font-mono text-gray-300 overflow-x-auto">[
-  {
-    "kode_part": "SP-0001",
-    "bulan_prediksi": "2026-07-01",
-    "estimasi_kebutuhan": 45.5,
-    "batas_bawah": 38.2,
-    "batas_atas": 52.8,
-    "di_generate_pada": "2026-05-17T08:00:00"
-  }
-]</pre>
-        </div>
-    </div>
+    @endif
 
     @endif
 </div>

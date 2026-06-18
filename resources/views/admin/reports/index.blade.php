@@ -16,16 +16,24 @@
         <form method="GET" action="{{ route('admin.reports.index') }}" id="form-filter">
 
             {{-- Tabs Periode --}}
-            <div class="flex flex-wrap items-center gap-2 mb-4">
-                @foreach (['bulanan' => 'Bulanan', 'mingguan' => 'Mingguan', 'harian' => 'Harian'] as $val => $label)
-                <a href="{{ route('admin.reports.index', array_merge(request()->except('periode'), ['periode' => $val])) }}"
-                   class="px-4 py-2 rounded-xl text-sm font-semibold transition-all
-                       {{ $periode === $val
-                           ? 'bg-blue-900 text-white shadow'
-                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
-                    {{ $label }}
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <div class="flex flex-wrap items-center gap-2">
+                    @foreach (['bulanan' => 'Bulanan', 'mingguan' => 'Mingguan', 'harian' => 'Harian', 'tahunan' => 'Tahunan'] as $val => $label)
+                    <a href="{{ route('admin.reports.index', array_merge(request()->except('periode'), ['periode' => $val])) }}"
+                       class="px-4 py-2 rounded-xl text-sm font-semibold transition-all
+                           {{ $periode === $val
+                               ? 'bg-blue-900 text-white shadow'
+                               : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+                        {{ $label }}
+                    </a>
+                    @endforeach
+                </div>
+                <a href="{{ route('admin.reports.print', array_merge(request()->query(), ['periode' => $periode])) }}"
+                   target="_blank"
+                   class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow shadow-emerald-600/20 transition-colors">
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 2.75C5 1.784 5.784 1 6.75 1h6.5c.966 0 1.75.784 1.75 1.75v3.552c.377.046.752.097 1.126.153C17.99 6.924 19 8.091 19 9.473v5.277A2.25 2.25 0 0 1 16.75 17h-.5v.25A1.75 1.75 0 0 1 14.5 19h-9a1.75 1.75 0 0 1-1.75-1.75V17h-.5A2.25 2.25 0 0 1 1 14.75V9.473c0-1.382 1.01-2.549 2.374-2.768.374-.056.75-.107 1.126-.153V2.75Zm1.5 0v3.301l6 .003V2.75a.25.25 0 0 0-.25-.25h-5.5a.25.25 0 0 0-.25.25Zm6.75 8.5a.75.75 0 0 0 0 1.5h.5a.75.75 0 0 0 0-1.5h-.5Z" clip-rule="evenodd"/></svg>
+                    Cetak Laporan
                 </a>
-                @endforeach
             </div>
 
             {{-- Input kontrol per periode --}}
@@ -42,7 +50,13 @@
                         <input type="date" name="minggu" value="{{ request('minggu', now()->startOfWeek()->toDateString()) }}"
                             class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
-                @else
+                @elseif($periode === 'tahunan')
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Tahun</label>
+                        <input type="number" name="tahun" min="2000" max="2100" value="{{ request('tahun', now()->format('Y')) }}"
+                            class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 w-28">
+                    </div>
+                @elseif($periode === 'harian')
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Tanggal</label>
                         <input type="date" name="tanggal" value="{{ request('tanggal', now()->toDateString()) }}"
