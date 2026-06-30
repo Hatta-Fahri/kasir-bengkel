@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             SparepartSeeder::class,
             TransactionSeeder::class,
+            HistoricalMayTransactionSeeder::class,
         ]);
     }
 }
