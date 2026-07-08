@@ -126,51 +126,67 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-center gap-2 flex-wrap">
 
-                                {{-- Estimasi: Setujui & Batalkan --}}
-                                @if($trx->status === 'estimasi')
-                                    <form method="POST" action="{{ route('kasir.transactions.approve', $trx->id) }}">
-                                        @csrf
-                                        <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg transition-colors">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                                            Setujui
-                                        </button>
-                                    </form>
-                                    <form method="POST" action="{{ route('kasir.transactions.cancel', $trx->id) }}"
-                                          onsubmit="return confirm('Batalkan estimasi {{ $trx->no_struk }}?')">
-                                        @csrf
-                                        <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-                                            Tolak
-                                        </button>
-                                    </form>
-                                @endif
-
-                                {{-- Proses: Tandai Selesai / Xendit --}}
-                                @if($trx->status === 'proses')
-                                    @if($trx->payment_url)
-                                        <a href="{{ $trx->payment_url }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
-                                            Bayar via Xendit
-                                        </a>
-                                    @else
-                                        <button type="button" @click="openPaymentModal({{ $trx->id }}, {{ $trx->total_bayar }}, '{{ $trx->no_struk }}')" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75" /></svg>
-                                            Servis Selesai
-                                        </button>
-                                    @endif
-                                @endif
-
-                                {{-- Struk (hanya yang sudah selesai) --}}
-                                @if($trx->status === 'selesai')
+                                @if($trx->tipe_transaksi === 'penjualan')
+                                    {{-- Penjualan: pembayaran (termasuk Xendit) sudah dituntaskan di halaman Transaksi Baru, jadi cukup cetak struk --}}
                                     <a href="{{ route('kasir.transactions.receipt', $trx->id) }}"
                                        class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:border-slate-400 hover:bg-slate-50 rounded-xl transition-all shadow-sm whitespace-nowrap">
                                         <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0v2.796c0 .121.08.232.198.256 3.425.688 6.945.688 10.404 0 .118-.024.198-.135.198-.256V7.03z" /></svg>
-                                        Struk
+                                        Cetak Struk
                                     </a>
-                                @endif
+                                @else
+                                    {{-- Servis --}}
 
-                                @if($trx->status === 'batal')
-                                    <span class="text-xs text-slate-400 italic">Dibatalkan</span>
+                                    {{-- Estimasi: Setujui & Batalkan --}}
+                                    @if($trx->status === 'estimasi')
+                                        <form method="POST" action="{{ route('kasir.transactions.approve', $trx->id) }}">
+                                            @csrf
+                                            <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                                Setujui
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('kasir.transactions.cancel', $trx->id) }}"
+                                              onsubmit="return confirm('Batalkan estimasi {{ $trx->no_struk }}?')">
+                                            @csrf
+                                            <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                                                Tolak
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    {{-- Proses: Bayar via Xendit (+ Cetak Struk) jika invoice sudah ada, atau Servis Selesai untuk memilih metode pembayaran --}}
+                                    @if($trx->status === 'proses')
+                                        @if($trx->payment_url)
+                                            <a href="{{ $trx->payment_url }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                                                Bayar via Xendit
+                                            </a>
+                                            <a href="{{ route('kasir.transactions.receipt', $trx->id) }}"
+                                               class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:border-slate-400 hover:bg-slate-50 rounded-xl transition-all shadow-sm whitespace-nowrap">
+                                                <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0v2.796c0 .121.08.232.198.256 3.425.688 6.945.688 10.404 0 .118-.024.198-.135.198-.256V7.03z" /></svg>
+                                                Cetak Struk
+                                            </a>
+                                        @else
+                                            <button type="button" @click="openPaymentModal({{ $trx->id }}, {{ $trx->total_bayar }}, '{{ $trx->no_struk }}')" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75" /></svg>
+                                                Servis Selesai
+                                            </button>
+                                        @endif
+                                    @endif
+
+                                    {{-- Struk (hanya yang sudah selesai) --}}
+                                    @if($trx->status === 'selesai')
+                                        <a href="{{ route('kasir.transactions.receipt', $trx->id) }}"
+                                           class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:border-slate-400 hover:bg-slate-50 rounded-xl transition-all shadow-sm whitespace-nowrap">
+                                            <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0v2.796c0 .121.08.232.198.256 3.425.688 6.945.688 10.404 0 .118-.024.198-.135.198-.256V7.03z" /></svg>
+                                            Cetak Struk
+                                        </a>
+                                    @endif
+
+                                    @if($trx->status === 'batal')
+                                        <span class="text-xs text-slate-400 italic">Dibatalkan</span>
+                                    @endif
                                 @endif
                             </div>
                         </td>
