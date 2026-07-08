@@ -21,10 +21,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            SparepartSeeder::class,
             SparepartAcSeeder::class,
             TransactionSeeder::class,
             HistoricalMayTransactionSeeder::class,
+            jasaServisSeeder::class,
         ]);
     }
 }
