@@ -24,6 +24,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 });
 
+// Xendit Webhook Endpoint (Bebas dari CSRF, dikonfigurasi di bootstrap/app.php)
+Route::post('/xendit/webhook', [\App\Http\Controllers\API\XenditWebhookController::class, 'handle']);
+
 Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');

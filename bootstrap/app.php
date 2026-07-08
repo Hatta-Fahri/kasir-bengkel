@@ -18,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Redirect URL saat user belum login
         $middleware->redirectGuestsTo(fn () => route('login'));
+
+        // Kecualikan route webhook dari perlindungan CSRF
+        $middleware->validateCsrfTokens(except: [
+            'xendit/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

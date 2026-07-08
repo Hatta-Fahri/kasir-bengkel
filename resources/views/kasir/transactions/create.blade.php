@@ -339,7 +339,7 @@
                             {{-- Metode Pembayaran (Hanya tampil jika bukan estimasi) --}}
                             <div x-show="!isEstimasi" x-collapse>
                                 <div class="space-y-4">
-                                    <div class="grid grid-cols-2 gap-3">
+                                    <div class="grid grid-cols-3 gap-3">
                                         <label class="cursor-pointer">
                                             <input type="radio" x-model="metode" value="cash" class="sr-only peer">
                                             <div class="flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-slate-200 bg-white peer-checked:border-slate-900 peer-checked:bg-slate-900 peer-checked:text-white transition-all text-sm font-semibold text-slate-500">
@@ -352,6 +352,12 @@
                                             <div class="flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-slate-200 bg-white peer-checked:border-slate-900 peer-checked:bg-slate-900 peer-checked:text-white transition-all text-sm font-semibold text-slate-500">
                                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z" /></svg>
                                                 QRIS
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" x-model="metode" value="xendit" class="sr-only peer">
+                                            <div class="flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-slate-200 bg-white peer-checked:border-slate-900 peer-checked:bg-slate-900 peer-checked:text-white transition-all text-sm font-semibold text-slate-500">
+                                                Xendit
                                             </div>
                                         </label>
                                     </div>
@@ -400,7 +406,7 @@
                                 <button x-show="!isEstimasi" type="submit" :disabled="!canSubmit"
                                     :class="canSubmit ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-xl shadow-slate-900/20' : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
                                     class="w-full py-4 font-bold rounded-xl transition-all active:scale-[0.98] text-sm flex items-center justify-center gap-2">
-                                    <span x-show="!loading">Proses & Cetak</span>
+                                    <span x-show="!loading" x-text="metode === 'xendit' ? 'Buat Invoice Xendit' : 'Proses & Cetak'"></span>
                                     <span x-show="loading" class="flex items-center gap-2">
                                         <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                         Memproses...

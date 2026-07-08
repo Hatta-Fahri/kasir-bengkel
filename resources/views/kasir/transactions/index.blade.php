@@ -145,12 +145,19 @@
                                     </form>
                                 @endif
 
-                                {{-- Proses: Tandai Selesai --}}
+                                {{-- Proses: Tandai Selesai / Xendit --}}
                                 @if($trx->status === 'proses')
-                                    <button type="button" @click="openPaymentModal({{ $trx->id }}, {{ $trx->total_bayar }}, '{{ $trx->no_struk }}')" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75" /></svg>
-                                        Servis Selesai
-                                    </button>
+                                    @if($trx->payment_url)
+                                        <a href="{{ $trx->payment_url }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                                            Bayar via Xendit
+                                        </a>
+                                    @else
+                                        <button type="button" @click="openPaymentModal({{ $trx->id }}, {{ $trx->total_bayar }}, '{{ $trx->no_struk }}')" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75" /></svg>
+                                            Servis Selesai
+                                        </button>
+                                    @endif
                                 @endif
 
                                 {{-- Struk (hanya yang sudah selesai) --}}
@@ -221,7 +228,7 @@
                     </div>
 
                     <div class="mt-6 space-y-4">
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-3 gap-3">
                             <label class="cursor-pointer">
                                 <input type="radio" name="metode_pembayaran" x-model="metode" value="cash" class="sr-only peer">
                                 <div class="flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-slate-200 bg-white peer-checked:border-slate-900 peer-checked:bg-slate-900 peer-checked:text-white transition-all text-sm font-semibold text-slate-500">
@@ -232,6 +239,12 @@
                                 <input type="radio" name="metode_pembayaran" x-model="metode" value="qris" class="sr-only peer">
                                 <div class="flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-slate-200 bg-white peer-checked:border-slate-900 peer-checked:bg-slate-900 peer-checked:text-white transition-all text-sm font-semibold text-slate-500">
                                     QRIS
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="metode_pembayaran" x-model="metode" value="xendit" class="sr-only peer">
+                                <div class="flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-slate-200 bg-white peer-checked:border-slate-900 peer-checked:bg-slate-900 peer-checked:text-white transition-all text-sm font-semibold text-slate-500">
+                                    Xendit
                                 </div>
                             </label>
                         </div>
@@ -262,8 +275,8 @@
                     <div class="mt-6 sm:flex sm:flex-row-reverse gap-3">
                         <button type="submit" :disabled="!canSubmit"
                             :class="canSubmit ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-purple-600/20 shadow-lg' : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
-                            class="inline-flex justify-center w-full px-4 py-3 text-sm font-bold border border-transparent rounded-xl focus:outline-none transition-all sm:w-auto">
-                            Selesaikan & Cetak
+                            class="inline-flex justify-center w-full px-4 py-3 text-sm font-bold border border-transparent rounded-xl focus:outline-none transition-all sm:w-auto"
+                            x-text="metode === 'xendit' ? 'Buat Invoice Xendit' : 'Selesaikan & Cetak'">
                         </button>
                         <button type="button" @click="closeModal()" class="inline-flex justify-center w-full px-4 py-3 mt-3 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 focus:outline-none transition-all sm:mt-0 sm:w-auto">
                             Batal

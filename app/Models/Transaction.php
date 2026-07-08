@@ -32,6 +32,8 @@ class Transaction extends Model
         'kembalian',
         'status',
         'catatan',
+        'xendit_invoice_id',
+        'payment_url',
     ];
 
     /**
@@ -122,9 +124,10 @@ class Transaction extends Model
     {
         return Attribute::make(
             get: fn () => match ($this->metode_pembayaran) {
-                'cash'  => 'Tunai (Cash)',
-                'qris'  => 'QRIS',
-                default => ucfirst($this->metode_pembayaran),
+                'cash'   => 'Tunai (Cash)',
+                'qris'   => 'QRIS',
+                'xendit' => 'Xendit (Online)',
+                default  => ucfirst($this->metode_pembayaran),
             },
         );
     }

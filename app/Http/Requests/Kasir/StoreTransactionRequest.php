@@ -20,7 +20,7 @@ class StoreTransactionRequest extends FormRequest
             'plat_nomor'          => ['nullable', 'string', 'max:20'],
             'jenis_mobil'         => ['nullable', 'string', 'max:100'],
             'ongkos_jasa'         => ['nullable', 'numeric', 'min:0'],
-            'metode_pembayaran'   => ['required', 'in:cash,qris'],
+            'metode_pembayaran'   => ['required', 'in:cash,qris,xendit'],
             'uang_diterima'       => ['nullable', 'numeric', 'min:0'],
             'catatan'             => ['nullable', 'string', 'max:500'],
             'is_estimasi'         => ['nullable', 'boolean'],

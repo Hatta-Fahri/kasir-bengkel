@@ -99,6 +99,38 @@ class TransactionController extends Controller
                     ->with('success', "Estimasi {$transaction->no_struk} berhasil disimpan. Tunggu persetujuan customer.");
             }
 
+            // Jika Xendit, buat invoice Xendit
+            if ($transaction->metode_pembayaran === 'xendit') {
+                $secretKey = config('services.xendit.secret_key');
+                if (empty($secretKey) || $secretKey === 'isi_secret_key_disini') {
+                    return back()->withInput()->with('error', 'Xendit Secret Key belum dikonfigurasi. Hubungi Admin.');
+                }
+
+                $response = \Illuminate\Support\Facades\Http::withBasicAuth($secretKey, '')
+                    ->post('https://api.xendit.co/v2/invoices', [
+                        'external_id' => $transaction->no_struk . '_' . time(),
+                        'amount'      => (float) $transaction->total_bayar,
+                        'description' => 'Pembayaran ' . ucfirst($transaction->tipe_transaksi) . ' ' . $transaction->no_struk,
+                        'success_redirect_url' => route('kasir.transactions.index'),
+                    ]);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+
+                    // Transaksi belum dibayar, ubah ke proses
+                    $transaction->update([
+                        'status'            => 'proses',
+                        'xendit_invoice_id' => $data['id'] ?? null,
+                        'payment_url'       => $data['invoice_url'] ?? null,
+                    ]);
+
+                    // Arahkan langsung ke halaman pembayaran Xendit, bukan ke riwayat transaksi
+                    return redirect()->away($data['invoice_url']);
+                } else {
+                    return back()->withInput()->with('error', 'Gagal membuat Invoice Xendit: ' . $response->body());
+                }
+            }
+
             return redirect()
                 ->route('kasir.transactions.receipt', $transaction->id)
                 ->with('success', "Transaksi {$transaction->no_struk} berhasil disimpan.");
