@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Kasir;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Kasir\StoreTransactionRequest;
+use App\Models\JasaServis;
 use App\Models\Sparepart;
 use App\Models\Transaction;
 use App\Services\TransactionService;
@@ -63,8 +64,20 @@ class TransactionController extends Controller
                 'stok'       => $sp->stok,
             ]);
 
+        // Ambil semua jasa servis yang aktif untuk ditampilkan di POS
+        $jasaServis = JasaServis::aktif()
+            ->orderBy('nama_jasa')
+            ->get()
+            ->map(fn ($j) => [
+                'id'             => $j->id,
+                'nama_jasa'      => $j->nama_jasa,
+                'estimasi_biaya' => (float) $j->estimasi_biaya,
+                'keterangan'     => $j->keterangan,
+            ]);
+
         return view('kasir.transactions.create', [
             'sparepartsJson' => $spareparts->toJson(),
+            'jasaServisJson' => $jasaServis->toJson(),
         ]);
     }
 
@@ -78,6 +91,13 @@ class TransactionController extends Controller
                 $request->validated(),
                 Auth::id()
             );
+
+            // Jika simpan sebagai estimasi, redirect ke riwayat (belum ke struk)
+            if ($transaction->status === 'estimasi') {
+                return redirect()
+                    ->route('kasir.transactions.index')
+                    ->with('success', "Estimasi {$transaction->no_struk} berhasil disimpan. Tunggu persetujuan customer.");
+            }
 
             return redirect()
                 ->route('kasir.transactions.receipt', $transaction->id)

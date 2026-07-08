@@ -18,6 +18,8 @@ class TransactionService
     {
         return DB::transaction(function () use ($data, $kasirId) {
 
+            $isEstimasi = !empty($data['is_estimasi']); // Mode estimasi: tidak potong stok dulu
+
             // 1. Hitung subtotal sparepart dari keranjang
             $subtotalSparepart = 0.0;
             $itemsToSave       = [];
@@ -49,7 +51,24 @@ class TransactionService
                 }
             }
 
-            $ongkosJasa = (float) ($data['ongkos_jasa'] ?? 0);
+            // 2. Hitung total ongkos jasa dari jasa_items yang dipilih
+            $jasaItemsData = [];
+            $ongkosJasa    = 0.0;
+
+            if (!empty($data['jasa_items'])) {
+                foreach ($data['jasa_items'] as $jasa) {
+                    $jasaItemsData[] = [
+                        'jasa_servis_id' => $jasa['id'],
+                        'nama_jasa'      => $jasa['nama_jasa'],
+                        'estimasi_biaya' => (float) $jasa['estimasi_biaya'],
+                    ];
+                    $ongkosJasa += (float) $jasa['estimasi_biaya'];
+                }
+            } else {
+                // Fallback: input manual ongkos jasa (untuk backward compatibility)
+                $ongkosJasa = (float) ($data['ongkos_jasa'] ?? 0);
+            }
+
             $totalBayar = $subtotalSparepart + $ongkosJasa;
 
             // 2. Hitung kembalian (hanya untuk cash)
@@ -68,16 +87,19 @@ class TransactionService
                 'plat_nomor'         => $data['plat_nomor'] ?? null,
                 'jenis_mobil'        => $data['jenis_mobil'] ?? null,
                 'ongkos_jasa'        => $ongkosJasa,
+                'jasa_items'         => !empty($jasaItemsData) ? $jasaItemsData : null,
                 'subtotal_sparepart' => $subtotalSparepart,
                 'total_bayar'        => $totalBayar,
                 'metode_pembayaran'  => $data['metode_pembayaran'],
                 'uang_diterima'      => $uangDiterima,
                 'kembalian'          => $kembalian,
-                'status'             => 'selesai',
+                'status'             => $isEstimasi ? 'estimasi' : 'selesai',
                 'catatan'            => $data['catatan'] ?? null,
             ]);
 
             // 4. Simpan detail & potong stok
+            //    Jika estimasi: simpan detail tetapi TIDAK potong stok dulu.
+            //    Stok akan dipotong saat estimasi disetujui (approve).
             foreach ($itemsToSave as $item) {
                 TransactionDetail::create([
                     'transaction_id'            => $transaction->id,
@@ -88,8 +110,10 @@ class TransactionService
                     'subtotal'                  => $item['subtotal'],
                 ]);
 
-                // Potong stok menggunakan decrement (thread-safe)
-                $item['sparepart']->decrement('stok', $item['qty']);
+                // Hanya potong stok jika BUKAN estimasi
+                if (!$isEstimasi) {
+                    $item['sparepart']->decrement('stok', $item['qty']);
+                }
             }
 
             return $transaction;

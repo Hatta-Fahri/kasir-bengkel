@@ -23,6 +23,13 @@ class StoreTransactionRequest extends FormRequest
             'metode_pembayaran'   => ['required', 'in:cash,qris'],
             'uang_diterima'       => ['nullable', 'numeric', 'min:0'],
             'catatan'             => ['nullable', 'string', 'max:500'],
+            'is_estimasi'         => ['nullable', 'boolean'],
+
+            // Jasa servis yang dipilih dari master data
+            'jasa_items'          => ['nullable', 'array'],
+            'jasa_items.*.id'     => ['required_with:jasa_items', 'integer', 'exists:jasa_servis,id'],
+            'jasa_items.*.nama_jasa'      => ['required_with:jasa_items', 'string'],
+            'jasa_items.*.estimasi_biaya' => ['required_with:jasa_items', 'numeric', 'min:0'],
 
             // Array keranjang belanja (bisa kosong jika servis tanpa sparepart)
             'items'               => ['nullable', 'array'],
@@ -80,8 +87,8 @@ class StoreTransactionRequest extends FormRequest
             }
 
             // Rule 4: Jika cash, uang_diterima harus >= total yang dibayar
-            // (total dihitung ulang di sini sebagai guard)
-            if ($this->metode_pembayaran === 'cash') {
+            // (Dilewati jika ini adalah estimasi — pembayaran belum terjadi)
+            if ($this->metode_pembayaran === 'cash' && !$this->boolean('is_estimasi')) {
                 if (empty($this->uang_diterima) || floatval($this->uang_diterima) <= 0) {
                     $v->errors()->add('uang_diterima', 'Uang diterima wajib diisi untuk pembayaran cash.');
                 }

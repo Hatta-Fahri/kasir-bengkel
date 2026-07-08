@@ -24,6 +24,7 @@ class Transaction extends Model
         'plat_nomor',
         'jenis_mobil',
         'ongkos_jasa',
+        'jasa_items',        // JSON snapshot jasa servis yang dipilih
         'subtotal_sparepart',
         'total_bayar',
         'metode_pembayaran',
@@ -46,6 +47,7 @@ class Transaction extends Model
             'total_bayar'        => 'decimal:2',
             'uang_diterima'      => 'decimal:2',
             'kembalian'          => 'decimal:2',
+            'jasa_items'         => 'array',   // JSON → array otomatis
         ];
     }
 
@@ -54,15 +56,61 @@ class Transaction extends Model
     // =========================================================================
 
     /**
-     * Accessor: Apakah transaksi ini bertipe servis?
-     *
-     * Penggunaan: $transaction->is_servis  → bool
+     * Accessor: Label status transaksi dalam Bahasa Indonesia.
      */
-    protected function isServis(): Attribute
+    protected function labelStatus(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->tipe_transaksi === 'servis',
+            get: fn () => match ($this->status) {
+                'estimasi'  => 'Estimasi',
+                'disetujui' => 'Disetujui',
+                'proses'    => 'Proses Servis',
+                'selesai'   => 'Selesai',
+                'batal'     => 'Dibatalkan',
+                default     => ucfirst($this->status),
+            },
         );
+    }
+
+    /**
+     * Accessor: Warna badge status (class Tailwind).
+     */
+    protected function badgeStatus(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => match ($this->status) {
+                'estimasi'  => 'bg-amber-100 text-amber-800',
+                'disetujui' => 'bg-blue-100 text-blue-800',
+                'proses'    => 'bg-purple-100 text-purple-800',
+                'selesai'   => 'bg-green-100 text-green-800',
+                'batal'     => 'bg-red-100 text-red-800',
+                default     => 'bg-slate-100 text-slate-800',
+            },
+        );
+    }
+
+    /**
+     * Apakah transaksi ini adalah estimasi (belum final)?
+     */
+    public function isEstimasi(): bool
+    {
+        return $this->status === 'estimasi';
+    }
+
+    /**
+     * Apakah transaksi ini masih bisa dibatalkan?
+     */
+    public function canBeCancelled(): bool
+    {
+        return in_array($this->status, ['estimasi', 'disetujui']);
+    }
+
+    /**
+     * Apakah transaksi ini sudah final (tidak bisa diubah)?
+     */
+    public function isFinal(): bool
+    {
+        return in_array($this->status, ['selesai', 'batal']);
     }
 
     /**
