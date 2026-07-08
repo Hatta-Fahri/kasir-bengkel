@@ -148,6 +148,17 @@ class TransactionController extends Controller
     public function receipt(Transaction $transaction): View
     {
         abort_if($transaction->kasir_id !== Auth::id(), 403);
+
+        // Transaksi yang masih menunggu pembayaran Xendit (status: proses)
+        // dianggap lunas begitu struknya dicetak/dilihat kasir.
+        if ($transaction->status === 'proses') {
+            $transaction->update([
+                'status'        => 'selesai',
+                'uang_diterima' => $transaction->total_bayar,
+                'kembalian'     => 0,
+            ]);
+        }
+
         $transaction->load(['details.sparepart', 'kasir']);
 
         return view('kasir.transactions.receipt', compact('transaction'));

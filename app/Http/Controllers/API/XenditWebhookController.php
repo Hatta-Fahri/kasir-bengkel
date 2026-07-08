@@ -10,12 +10,14 @@ class XenditWebhookController extends Controller
 {
     public function handle(Request $request)
     {
-        // 1. Dapatkan data JSON dari Xendit
-        $data = $request->all();
+        // 1. Verifikasi token webhook Xendit (mencegah callback palsu)
+        $expectedToken = config('services.xendit.webhook_token');
+        if (!empty($expectedToken) && $request->header('x-callback-token') !== $expectedToken) {
+            return response()->json(['message' => 'Invalid callback token'], 401);
+        }
 
-        // Xendit Webhook Verification Token (Opsional, untuk keamanan)
-        // $xenditToken = $request->header('x-callback-token');
-        // if ($xenditToken !== config('services.xendit.webhook_token')) { ... }
+        // 2. Dapatkan data JSON dari Xendit
+        $data = $request->all();
 
         $status = $data['status'] ?? null;
         $invoiceId = $data['id'] ?? null;
