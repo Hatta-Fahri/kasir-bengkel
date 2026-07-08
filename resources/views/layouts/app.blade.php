@@ -61,6 +61,10 @@
                 <svg class="w-4 h-4 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.362 1.093a.75.75 0 0 0-.724 0L2.523 5.018 10 9.143l7.477-4.125-7.115-3.925ZM18 6.443l-7.25 3.998v8.649l6.498-3.582A.75.75 0 0 0 18 14.9V6.443ZM9.25 19.09V10.44L2 6.443V14.9a.75.75 0 0 0 .752.608L9.25 19.09Z"/></svg>
                 Master Sparepart
             </a>
+            <a href="{{ route('admin.jasa-servis.index') }}" class="sidebar-link {{ request()->routeIs('admin.jasa-servis.*') ? 'sidebar-link-active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2.5 4A1.5 1.5 0 0 0 1 5.5v2A1.5 1.5 0 0 0 2.5 9h15A1.5 1.5 0 0 0 19 7.5v-2A1.5 1.5 0 0 0 17.5 4h-15Zm0 7A1.5 1.5 0 0 0 1 12.5v2A1.5 1.5 0 0 0 2.5 16h15a1.5 1.5 0 0 0 1.5-1.5v-2A1.5 1.5 0 0 0 17.5 11h-15Z" clip-rule="evenodd"/></svg>
+                Master Jasa Servis
+            </a>
 
             <p class="px-3 pt-4 pb-1.5 text-xs font-semibold text-brand-500 uppercase tracking-widest">Keuangan</p>
             <a href="{{ route('admin.expenses.index') }}" class="sidebar-link {{ request()->routeIs('admin.expenses.*') ? 'sidebar-link-active' : '' }}">

@@ -18,7 +18,7 @@
         </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.jasa-servis.update', $jasaServis) }}" class="space-y-4">
+        <form method="POST" action="{{ route('admin.jasa-servis.update', $jasaServis->id) }}" class="space-y-4">
             @csrf @method('PUT')
 
             <div>
