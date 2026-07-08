@@ -12,7 +12,8 @@ class DatabaseSeeder extends Seeder
      * Urutan wajib dijaga karena ada foreign-key dependency:
      *   1. UserSeeder      → tabel users (kasir & admin)
      *   2. SparepartSeeder → tabel spareparts
-     *   3. TransactionSeeder → tabel transactions + transaction_details
+     *   3. SparepartAcSeeder → tabel spareparts (khusus sparepart AC)
+     *   4. TransactionSeeder → tabel transactions + transaction_details
      *
      * Semua seeder bersifat idempotent (aman dijalankan berulang kali).
      */
@@ -21,6 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             SparepartSeeder::class,
+            SparepartAcSeeder::class,
             TransactionSeeder::class,
             HistoricalMayTransactionSeeder::class,
         ]);
